@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.intoolswetrust.jsignpdf.pades.config.BasicConfig;
@@ -139,7 +141,7 @@ public class KeyStoreUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to read certificate aliases from keystore", e);
             return null;
         }
         return tmpResult.toArray(new String[tmpResult.size()]);
@@ -170,7 +172,7 @@ public class KeyStoreUtils {
     }
 
     public static KeyStoreSignatureTokenConnection createKeyStoreSignatureTokenConnection(BasicConfig config) throws IOException {
-        PasswordProtection ksPassword = new PasswordProtection(config.getKeyStorePasswordAsChars());
+        PasswordProtection ksPassword = new PasswordProtection(config.getKeyStorePassword());
         File keyStoreFile = config.getKeyStoreFile();
         KeyStoreSignatureTokenConnection result = null;
         if (keyStoreFile != null) {
@@ -190,6 +192,74 @@ public class KeyStoreUtils {
             ksType = KeyStore.getDefaultType();
         }
         return ksType;
+    }
+
+    public static KeyStore createTrustStore()
+            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        final KeyStore trustStore = createKeyStore();
+        KeyStore ks = loadCacertsKeyStore(null);
+        copyCertificates(ks, trustStore);
+        return trustStore;
+    }
+
+    /**
+     * Creates empty PKCS12 keystore..
+     */
+    public static KeyStore createKeyStore()
+            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        final KeyStore newKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        newKeyStore.load(null, null);
+        return newKeyStore;
+    }
+
+    /**
+     * Loads the default root certificates at &lt;java.home&gt;/lib/security/cacerts.
+     *
+     * @param provider the provider or <code>null</code> for the default provider
+     * @return a <CODE>KeyStore</CODE>
+     */
+    public static KeyStore loadCacertsKeyStore(String provider) {
+        String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
+        if (StringUtils.isEmpty(trustStorePath)) {
+            trustStorePath = System.getProperty("java.home") + "/lib/security/cacerts";
+        }
+        File file = new File(trustStorePath);
+        FileInputStream fin = null;
+        try {
+            fin = new FileInputStream(file);
+            KeyStore k;
+            String ksType = KeyStore.getDefaultType();
+            if (provider == null) {
+                k = KeyStore.getInstance(ksType);
+            } else
+                k = KeyStore.getInstance(ksType, provider);
+            k.load(fin, null);
+            return k;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to load cacerts keystore from " + file, e);
+            return null;
+        } finally {
+            IOUtils.closeQuietly(fin);
+        }
+    }
+
+    /**
+     * Copies certificates from one keystore to another. Both keystore has to be initialized.
+     */
+    public static boolean copyCertificates(KeyStore fromKeyStore, KeyStore toKeyStore) {
+        if (fromKeyStore == null || toKeyStore == null) {
+            return false;
+        }
+
+        try {
+            for (String alias : getCertAliases(fromKeyStore)) {
+                toKeyStore.setCertificateEntry(alias, fromKeyStore.getCertificate(alias));
+            }
+            return true;
+        } catch (KeyStoreException e) {
+            LOGGER.log(Level.SEVERE, "Failed to copy certificates between keystores", e);
+        }
+        return false;
     }
 
 }

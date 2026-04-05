@@ -1,4 +1,4 @@
-package com.github.intoolswetrust.jsignpdf.pades;
+package com.github.intoolswetrust.jsignpdf.pades.common;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.github.intoolswetrust.jsignpdf.pades.config.TrustConfig;
 
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
@@ -56,8 +54,9 @@ public class TrustedCertSourcesProvider {
         }
         File truststoreFile = trustConfig.getKeystoreFile();
         if (truststoreFile != null) {
+            char[] ksPwd = trustConfig.getKeystorePassword();
             KeyStoreCertificateSource source = new KeyStoreCertificateSource(truststoreFile, trustConfig.getKeystoreType(),
-                    trustConfig.getKeystorePassword());
+                    ksPwd);
             trustedSources.add(source);
         }
         return trustedSources.toArray(new CertificateSource[trustedSources.size()]);
@@ -73,6 +72,7 @@ public class TrustedCertSourcesProvider {
             lotlSource.setUrl(url);
             lotlSource.setCertificateSource(new CommonCertificateSource());
             // lotlSource.setPivotSupport(true);
+            lotlSources.add(lotlSource);
         }
         return lotlSources.toArray(new LOTLSource[lotlSources.size()]);
     }

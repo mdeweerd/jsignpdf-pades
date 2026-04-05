@@ -118,6 +118,7 @@ java -jar jsignpdf-pades-validator.jar -h
 | `-ka, --key-alias` | Key alias to use for signing |
 
 ### Signature
+
 | Option | Description |
 |--------|-------------|
 | `-pl, --pades-level` | PAdES level: BASELINE_B, BASELINE_T, BASELINE_LT, BASELINE_LTA |
@@ -127,6 +128,15 @@ java -jar jsignpdf-pades-validator.jar -h
 | `-l, --location` | Location of signature |
 | `-c, --contact` | Contact info |
 | `-sn, --signer-name` | Signer name override |
+
+PAdES levels (ETSI EN 319 142-1) build on each other — each level adds protection on top of the previous one:
+
+| Level | Name | Description |
+|-------|------|-------------|
+| `BASELINE_B` | Basic | Minimum signature: signer's certificate, signing time, and cryptographic binding to the document. Proves *who* signed *what*, but the signing time is not trusted and long-term validity is not ensured. |
+| `BASELINE_T` | Timestamp | Adds a trusted timestamp (from a TSA) over the signature. Proves the signature existed at a specific point in time, even if the signer's certificate later expires or is revoked. |
+| `BASELINE_LT` | Long-Term | Embeds all validation material (certificate chain, CRLs, OCSP responses) into the document. The signature can be validated offline, long after the original revocation data sources become unavailable. |
+| `BASELINE_LTA` | Long-Term with Archive timestamp | Adds an archive timestamp over the LT data. Protects against crypto algorithm obsolescence and can be renewed periodically to extend validity for decades. |
 
 ### Visible Signature
 | Option | Description |

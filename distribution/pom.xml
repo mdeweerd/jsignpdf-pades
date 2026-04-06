@@ -65,5 +65,10 @@
             <artifactId>jsignpdf-pades</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jsignpdf-pades-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

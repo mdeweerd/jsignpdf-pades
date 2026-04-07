@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.beust.jcommander.JCommander;
 import com.github.intoolswetrust.jsignpdf.pades.config.BasicConfig;
@@ -18,6 +19,7 @@ import com.github.intoolswetrust.jsignpdf.pades.config.Pkcs11Config;
 public class Main {
 
     public static void main(String[] args) {
+        Security.addProvider(new BouncyCastleProvider());
         int exitCode = 0;
         BasicConfig config = new BasicConfig();
         Pkcs11Config p11config = new Pkcs11Config();

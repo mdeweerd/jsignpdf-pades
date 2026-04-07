@@ -1,8 +1,11 @@
 package com.github.intoolswetrust.jsignpdf.pades.validator;
 
 import java.io.File;
+import java.security.Security;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.beust.jcommander.JCommander;
 import com.github.intoolswetrust.jsignpdf.pades.validator.config.ValidatorConfig;
@@ -12,6 +15,7 @@ public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getPackage().getName());
 
     public static void main(String[] args) {
+        Security.addProvider(new BouncyCastleProvider());
         ValidatorConfig config = new ValidatorConfig();
         JCommander jcmd = JCommander.newBuilder().addObject(config).build();
 

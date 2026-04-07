@@ -44,6 +44,7 @@ jobs:
           --main-jar jsignpdf-pades.jar
           --main-class com.github.intoolswetrust.jsignpdf.pades.Main
           --name jsignpdf-pades
+          --dest jpackage-out
           --app-version ${{ steps.version.outputs.version }}
           --win-console
           --java-options "--add-exports jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED"
@@ -57,14 +58,14 @@ jobs:
       - name: Create MSI installer
         run: >
           jpackage --type msi
-          --app-image jsignpdf-pades
+          --app-image jpackage-out/jsignpdf-pades
           --name jsignpdf-pades
           --app-version ${{ steps.version.outputs.version }}
 
       - name: Create EXE installer
         run: >
           jpackage --type exe
-          --app-image jsignpdf-pades
+          --app-image jpackage-out/jsignpdf-pades
           --name jsignpdf-pades
           --app-version ${{ steps.version.outputs.version }}
 

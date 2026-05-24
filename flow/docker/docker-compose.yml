@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Base service with Java and Maven for building
+  jsignpdf-pades-builder:
+    image: maven:3.9.6-eclipse-temurin-17
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+      - ~/.m2:/root/.m2
+    environment:
+      - MAVEN_CONFIG=/root/.m2/settings.xml
+    command: tail -f /dev/null
+
+  # Build the entire project
+  jsignpdf-pades-build:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package
+
+  # Build just the common module
+  jsignpdf-pades-build-common:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package -pl common
+
+  # Build just the main signing module
+  jsignpdf-pades-build-signer:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package -pl jsignpdf-pades
+
+  # Build just the validator module
+  jsignpdf-pades-build-validator:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package -pl validator
+
+  # Build just the distribution module
+  jsignpdf-pades-build-distribution:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package -pl distribution
+
+  # Build without tests
+  jsignpdf-pades-build-notest:
+    extends: jsignpdf-pades-builder
+    command: mvn clean package -DskipTests
+
+  # Build and install to local maven repository
+  jsignpdf-pades-install:
+    extends: jsignpdf-pades-builder
+    command: mvn clean install
+
+  # Build and install without tests
+  jsignpdf-pades-install-notest:
+    extends: jsignpdf-pades-builder
+    command: mvn clean install -DskipTests
+
+  # Clean build
+  jsignpdf-pades-clean:
+    extends: jsignpdf-pades-builder
+    command: mvn clean
+
+  # Dependency tree
+  jsignpdf-pades-deps:
+    extends: jsignpdf-pades-builder
+    command: mvn dependency:tree
+
+  # Verify build
+  jsignpdf-pades-verify:
+    extends: jsignpdf-pades-builder
+    command: mvn verify
+
+  # Site generation
+  jsignpdf-pades-site:
+    extends: jsignpdf-pades-builder
+    command: mvn site

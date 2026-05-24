@@ -8,8 +8,6 @@ services:
     volumes:
       - ..:/workspace
       - ~/.m2:/root/.m2
-    environment:
-      - MAVEN_CONFIG=/root/.m2/settings.xml
     command: tail -f /dev/null
 
   # Build the entire project
